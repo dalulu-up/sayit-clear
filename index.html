@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>说清楚</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { font-family: -apple-system, sans-serif; background: #3c3a37; height: 100%; overflow: hidden; }
+#app { height: 100%; position: relative; }
+.page { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.page.active { display: block; }
+
+/* 首页 */
+#page-a { background: #3c3a37; display: none; flex-direction: column; align-items: center; justify-content: center; }
+#page-a.active { display: flex; }
+.page-a-title { font-size: 56px; font-weight: 900; color: #f0ebe4; }
+.page-a-slogan { font-size: 15px; color: #b8a088; margin-top: 16px; }
+.page-a-btn { width: 140px; height: 50px; background: #c8a882; color: #fff; font-size: 20px; border: none; border-radius: 9999px; margin-top: 52px; }
+
+/* 练习页 */
+#page-b { background: #f7f4f0; padding: 20px; display: none; }
+#page-b.active { display: block; }
+.page-b-header { display: flex; justify-content: space-between; color: #8a8072; font-size: 13px; }
+.page-b-theme { font-size: 22px; font-weight: bold; margin-top: 16px; }
+.page-b-tags { background: #f0ebe4; border-radius: 10px; padding: 8px 16px; margin-top: 12px; display: flex; justify-content: space-between; }
+.page-b-tags span { font-size: 12px; color: #8a8072; }
+.page-b-card { background: #fff; border-radius: 16px; padding: 20px; margin-top: 16px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
+.line-item { display: flex; margin-bottom: 16px; }
+.line-bar { width: 4px; border-radius: 2px; margin-right: 14px; flex-shrink: 0; }
+.line-bar.hook { background: #e05a5a; }
+.line-bar.pain { background: #e8a020; }
+.line-bar.solution { background: #4a9e6e; }
+.line-bar.quote { background: #4a7ab5; }
+.line-text { font-size: 15px; line-height: 1.75; color: #2a2825; flex: 1; }
+.line-text.quote { font-style: italic; }
+.page-b-source { font-size: 12px; color: #9a9080; margin-top: 16px; }
+.page-b-progress { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+.progress-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #d0c8be; }
+.progress-dot.done { background: #c8a882; border-color: #c8a882; }
+.page-b-btns { display: flex; gap: 12px; margin-top: 20px; }
+.page-b-btn-left { flex: 2; height: 50px; background: #1a1a1a; color: #fff; font-size: 16px; border: none; border-radius: 12px; }
+.page-b-btn-right { flex: 1; height: 50px; background: transparent; border: 1px solid #d0c8be; color: #8a8072; font-size: 16px; border-radius: 12px; }
+.page-b-btn-left.done { background: #c8a882; }
+
+/* 知识卡片 */
+#page-c { background: #f0ebe4; padding: 16px; display: none; }
+#page-c.active { display: block; }
+.kcard { background: #faf8f5; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+.kcard-header { background: #3c3a37; padding: 20px; color: #f0ebe4; }
+.kcard-tag { font-size: 10px; color: #8a8072; letter-spacing: 0.2em; }
+.kcard-title { font-size: 32px; font-weight: 900; margin-top: 10px; }
+.kcard-en { font-size: 10px; color: #a09888; margin-top: 6px; }
+.kcard-hr { height: 1px; background: #5a5248; margin-top: 16px; }
+.kcard-summary { background: #fff; padding: 16px 20px; display: flex; }
+.kcard-summary-bar { width: 4px; background: #c8a882; border-radius: 2px; margin-right: 12px; flex-shrink: 0; }
+.kcard-summary-text { font-size: 14px; font-weight: bold; line-height: 1.65; flex: 1; }
+.kcard-mech { padding: 16px 20px; }
+.mech-box { background: #f5f0e8; border-radius: 12px; padding: 14px 16px; }
+.mech-title { font-size: 13px; font-weight: bold; color: #7a7062; margin-bottom: 6px; }
+.mech-text { font-size: 13px; color: #7a7062; line-height: 1.65; }
+.mech-source { font-size: 12px; color: #9a9080; margin-top: 6px; }
+.kcard-actions { padding: 16px 20px 0; }
+.actions-title { font-size: 13px; font-weight: bold; color: #b8a088; margin-bottom: 10px; }
+.action-item { font-size: 13px; color: #7a7062; margin-bottom: 8px; line-height: 1.6; }
+.action-num { color: #c8a882; font-weight: bold; }
+.kcard-divider { height: 1px; background: #e8e0d5; margin: 16px 20px; }
+.kcard-quote { padding: 0 20px 16px; display: flex; }
+.kcard-quote-bar { width: 3px; background: #c8a882; border-radius: 2px; margin-right: 10px; flex-shrink: 0; }
+.kcard-quote-text { font-size: 15px; font-style: italic; color: #8a7e6e; line-height: 1.6; flex: 1; }
+.kcard-footer { font-size: 12px; color: #b0a898; text-align: center; padding-bottom: 16px; }
+.card-hint { font-size: 12px; color: #9a9080; text-align: center; padding: 10px 0; }
+.done-btn { width: calc(100% - 32px); margin: 0 16px 32px; height: 52px; background: #1a1a1a; color: #fff; font-size: 17px; font-weight: bold; border: none; border-radius: 14px; }
+
+/* 完成页 */
+#page-d { background: #f7f5f2; display: none; flex-direction: column; align-items: center; padding-top: 8vh; }
+#page-d.active { display: flex; }
+.d-quote { font-size: 20px; font-weight: bold; text-align: center; padding: 0 32px; line-height: 1.6; }
+.d-source { font-size: 12px; color: #8a8072; margin-top: 10px; }
+.d-line { width: 40px; height: 1px; background: #d0c8be; margin-top: 28px; }
+.d-check { width: 100px; height: 100px; border-radius: 50%; background: #f0fdf4; border: 3px solid #4a9e6e; display: flex; align-items: center; justify-content: center; margin-top: 28px; font-size: 48px; color: #4a9e6e; font-weight: bold; }
+.d-done { font-size: 22px; font-weight: bold; margin-top: 20px; }
+.d-streak { font-size: 14px; color: #8a8072; margin-top: 8px; }
+.d-btns { display: flex; gap: 12px; margin-top: 8vh; padding: 0 20px; width: 100%; }
+.d-btn-left { flex: 1; height: 52px; background: #1a1a1a; color: #fff; font-size: 16px; font-weight: bold; border: none; border-radius: 14px; }
+.d-btn-right { flex: 1; height: 52px; background: transparent; border: 1.5px solid #d0c8be; color: #8a8072; font-size: 16px; border-radius: 14px; }
+.brand-footer { font-size: 11px; color: #b0a898; text-align: center; margin-top: 20px; padding-bottom: 16px; letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+
+<div id="page-a" class="page active">
+  <div class="page-a-title">说清楚</div>
+  <div class="page-a-slogan">你不是不会说，你是没练过。</div>
+  <button class="page-a-btn" onclick="goToB()">开练</button>
+</div>
+
+<div id="page-b" class="page">
+  <div class="page-b-header">
+    <span id="b-date"></span>
+    <span id="b-day"></span>
+  </div>
+  <div class="page-b-theme" id="b-theme"></div>
+  <div class="page-b-tags">
+    <span style="color:#e05a5a;">&#9679; 钩子</span>
+    <span style="color:#e8a020;">&#9679; 痛点</span>
+    <span style="color:#4a9e6e;">&#9679; 解法</span>
+    <span style="color:#4a7ab5;">&#9679; 金句</span>
+  </div>
+  <div class="page-b-card">
+    <div id="b-lines"></div>
+    <div class="page-b-source" id="b-source"></div>
+  </div>
+  <div class="page-b-progress" id="b-progress">
+    <div class="progress-dot"></div>
+    <div class="progress-dot"></div>
+    <div class="progress-dot"></div>
+  </div>
+  <div class="page-b-btns">
+    <button class="page-b-btn-left" id="b-btn" onclick="handleRead()">我读完一遍</button>
+    <button class="page-b-btn-right" onclick="changeDay()">换一条</button>
+  </div>
+</div>
+
+<div id="page-c" class="page">
+  <div class="kcard">
+    <div class="kcard-header">
+      <div style="display:flex;justify-content:space-between;">
+        <span class="kcard-tag" id="c-tag"></span>
+        <span class="kcard-tag" id="c-no"></span>
+      </div>
+      <div class="kcard-title" id="c-title"></div>
+      <div class="kcard-en" id="c-en"></div>
+      <div class="kcard-hr"></div>
+    </div>
+    <div class="kcard-summary">
+      <div class="kcard-summary-bar"></div>
+      <div class="kcard-summary-text" id="c-summary"></div>
+    </div>
+    <div class="kcard-mech">
+      <div class="mech-box">
+        <div class="mech-title">机制</div>
+        <div class="mech-text" id="c-mech"></div>
+        <div class="mech-source" id="c-mech-src"></div>
+      </div>
+    </div>
+    <div class="kcard-actions">
+      <div class="actions-title">&#9670; 今日行动</div>
+      <div id="c-actions"></div>
+    </div>
+    <div class="kcard-divider"></div>
+    <div class="kcard-quote">
+      <div class="kcard-quote-bar"></div>
+      <div class="kcard-quote-text" id="c-quote"></div>
+    </div>
+    <div class="kcard-footer" id="c-footer"></div>
+  </div>
+  <div class="card-hint">长按卡片可保存</div>
+  <button class="done-btn" onclick="goToD()">完成打卡</button>
+</div>
+
+<div id="page-d" class="page">
+  <div class="d-quote" id="d-quote"></div>
+  <div class="d-source" id="d-source"></div>
+  <div class="d-line"></div>
+  <div class="d-check">&#10003;</div>
+  <div class="d-done">今日完成</div>
+  <div class="d-streak" id="d-streak"></div>
+  <div class="d-btns">
+    <button class="d-btn-left" onclick="again()">再练一遍</button>
+    <button class="d-btn-right" onclick="changeDay()">换一个</button>
+  </div>
+  <div class="brand-footer">SayIt · 说清楚</div>
+</div>
+
+<script>
+var days = [
+  {
+    id: 1, date: "Day 1", theme: "你不是懒，你是目标设错了",
+    lines: [
+      { type:"hook", text:"有些事拖了好几个月，有些事你根本不需要人催——为什么？" },
+      { type:"pain", text:"不是你懒，是那件事从一开始就不是你真正想要的。外部强加的目标，大脑会本能抗拒。" },
+      { type:"solution", text:"拖延之前先问自己：这件事是我想做，还是我觉得应该做？把「应该」换成「想要」。" },
+      { type:"quote", text:"懒不是品质问题，是方向问题。" }
+    ],
+    source: "自我决定理论 · Deci & Ryan",
+    card: {
+      tag:"COGNITION", no:"NO.001", title:"目标设错了", en:"WRONG GOAL NOT LAZINESS",
+      summary:"你以为是执行力的问题，其实是目标本身就没有吸引力",
+      mech:"自我决定理论指出，只有满足「自主性」的目标大脑才会持续有动力。外部强加的目标触发心理抗拒，表现出来就是拖延。",
+      mechSrc:"自我决定理论 · Deci & Ryan",
+      actions:[
+        { title:"识别拖延", desc:"这件事是我要的还是别人期待的？" },
+        { title:"找真实动力", desc:"它和我真正在乎的什么有关？" },
+        { title:"换个说法", desc:"把「我应该」换成「我想」" }
+      ],
+      quote:"懒不是品质问题，是方向问题。",
+      footer:"自我决定理论 × 说清楚"
+    }
+  },
+  {
+    id: 2, date: "Day 2", theme: "努力是最容易的事",
+    lines: [
+      { type:"hook", text:"你身边有没有这种人，每天都很忙，但几年过去了好像什么都没变？" },
+      { type:"pain", text:"努力本身太容易了，难的是想清楚努力什么。大多数人用战术的勤奋，掩盖战略的懒惰。" },
+      { type:"solution", text:"每周问自己：如果现在做的事再努力10倍，我会到哪里？答案不够好就先改方向，再谈努力。" },
+      { type:"quote", text:"方向错了，努力只是让你更快到达错误的终点。" }
+    ],
+    source: "纳瓦尔宝典 · Naval Ravikant",
+    card: {
+      tag:"THINKING", no:"NO.002", title:"方向比努力重要", en:"DIRECTION OVER EFFORT",
+      summary:"你缺的从来不是努力，是努力之前先想清楚方向对不对",
+      mech:"纳瓦尔指出，错误方向的努力只是把你送到错误终点更快。方向正确的努力是指数级回报，方向错误的努力是线性消耗。",
+      mechSrc:"纳瓦尔宝典 · Naval Ravikant",
+      actions:[
+        { title:"检查方向", desc:"10倍努力后，我会在哪里？" },
+        { title:"找核心目标", desc:"最努力的3件事指向同一个吗？" },
+        { title:"做减法", desc:"停掉一件方向不对的事" }
+      ],
+      quote:"方向错了，努力只是让你更快到达错误的终点。",
+      footer:"纳瓦尔宝典 × 说清楚"
+    }
+  },
+  {
+    id: 3, date: "Day 3", theme: "你的问题不是执行力差，是决策太多",
+    lines: [
+      { type:"hook", text:"为什么越到下午越容易摆烂，早上还好好的，下午什么都不想做？" },
+      { type:"pain", text:"不是意志力差，是大脑电量耗完了。吃什么穿什么先做哪个，每个小决策都在消耗同一块电池。" },
+      { type:"solution", text:"把不重要的决策提前固定：固定早餐、固定穿搭、固定工作顺序。把意志力留给重要的事。" },
+      { type:"quote", text:"自律不是意志力强，而是要做的决策更少。" }
+    ],
+    source: "决策疲劳研究 · Roy Baumeister",
+    card: {
+      tag:"COGNITION", no:"NO.003", title:"决策耗尽意志力", en:"DECISION FATIGUE IS REAL",
+      summary:"你以为在偷懒，其实大脑已经把今天的能量用完了",
+      mech:"Baumeister发现意志力是有限资源，每次决策都会消耗它。奥巴马只穿灰蓝两色西装，就是为了把决策从生活里删掉。",
+      mechSrc:"决策疲劳研究 · Roy Baumeister",
+      actions:[
+        { title:"找重复决策", desc:"哪些事可以提前固定下来？" },
+        { title:"今晚就定好", desc:"明天的早餐和穿搭现在决定" },
+        { title:"保护上午", desc:"最重要的事放在精力最强时段" }
+      ],
+      quote:"自律不是意志力强，而是要做的决策更少。",
+      footer:"决策疲劳研究 × 说清楚"
+    }
+  },
+  {
+    id: 4, date: "Day 4", theme: "聪明人更容易做蠢决定",
+    lines: [
+      { type:"hook", text:"你有没有发现，越聪明的人，有时候犯的错越离谱？" },
+      { type:"pain", text:"因为聪明人更擅长一件事：为自己已经做的决定找到合理的理由。这不是思考，是自我欺骗。" },
+      { type:"solution", text:"做重要决定之前，先找一个会反对你的人说说你的想法。不是找认同，是找漏洞。" },
+      { type:"quote", text:"聪明让你解决问题，也让你更擅长为错误辩护。" }
+    ],
+    source: "思考快与慢 · Daniel Kahneman",
+    card: {
+      tag:"THINKING", no:"NO.004", title:"聪明人的盲区", en:"SMART PEOPLE MAKE DUMB MISTAKES",
+      summary:"高智商不能防止错误判断，反而让你更擅长为错误自圆其说",
+      mech:"卡尼曼称之为「动机性推理」：大脑先做决定，再用逻辑为它辩护。智商越高，这套辩护系统越精密，越难被察觉。",
+      mechSrc:"思考快与慢 · Daniel Kahneman",
+      actions:[
+        { title:"找你最确信的判断", desc:"你真的听过反对意见吗？" },
+        { title:"主动找反对者", desc:"请一个敢说真话的人挑漏洞" },
+        { title:"睡一觉再决定", desc:"重大决策不要当天拍板" }
+      ],
+      quote:"聪明让你解决问题，也让你更擅长为错误辩护。",
+      footer:"思考快与慢 × 说清楚"
+    }
+  },
+  {
+    id: 5, date: "Day 5", theme: "你没有时间问题，你有优先级问题",
+    lines: [
+      { type:"hook", text:"你有没有说过：「我最近太忙了，没时间做这件事。」" },
+      { type:"pain", text:"忙不是事情太多，是没想清楚哪件最重要。每个人都是24小时，你不是没时间，你是没选择。" },
+      { type:"solution", text:"今天结束前，写下明天最重要的一件事。不是清单，就一件事，其他的都排在它后面。" },
+      { type:"quote", text:"你永远有时间做最重要的事，没时间的都是次要的。" }
+    ],
+    source: "高效能人士的7个习惯 · Stephen Covey",
+    card: {
+      tag:"PRODUCTIVITY", no:"NO.005", title:"没时间？错了", en:"YOU HAVE A PRIORITY PROBLEM",
+      summary:"时间管理不是时间的问题，是你有没有想清楚什么最重要",
+      mech:"柯维指出，大多数人把时间花在「紧急但不重要」的事上，真正重要的事反而一直被推后。时间不够，是被紧急的事劫持了。",
+      mechSrc:"高效能人士的7个习惯 · Stephen Covey",
+      actions:[
+        { title:"分类今天的事", desc:"紧急的？重要的？各是哪些？" },
+        { title:"找出被挤掉的", desc:"什么重要的事你一直没时间做？" },
+        { title:"明天先做它", desc:"把它排在第一位，别的都靠后" }
+      ],
+      quote:"你永远有时间做最重要的事，没时间的都是次要的。",
+      footer:"高效能人士的7个习惯 × 说清楚"
+    }
+  },
+  {
+    id: 6, date: "Day 6", theme: "坚持不是意志力，是设计问题",
+    lines: [
+      { type:"hook", text:"有些习惯你轻松坚持多年，有些事下定决心第三天就放弃——这是为什么？" },
+      { type:"pain", text:"不是意志力差，是你把「需要意志力才能做到的事」当成习惯来要求自己。好习惯不靠意志力，靠设计。" },
+      { type:"solution", text:"把门槛降到低到可笑的程度。想跑步，先只要求换上跑鞋站到门口就算完成。" },
+      { type:"quote", text:"让好习惯容易发生，让坏习惯难以发生。" }
+    ],
+    source: "原子习惯 · James Clear",
+    card: {
+      tag:"HABIT", no:"NO.006", title:"习惯是设计出来的", en:"HABITS ARE DESIGNED NOT FORCED",
+      summary:"坚持不下去不是意志力失败，是环境设计失败",
+      mech:"James Clear指出，行为发生由摩擦力决定。好习惯摩擦力越小越容易坚持，坏习惯摩擦力越大越容易戒掉。意志力是应急工具，不是长期策略。",
+      mechSrc:"原子习惯 · James Clear",
+      actions:[
+        { title:"找想养成的习惯", desc:"现在做它需要几个步骤？" },
+        { title:"缩小到2分钟", desc:"把它压缩到最小可执行版本" },
+        { title:"减少摩擦", desc:"把工具提前摆在最显眼的地方" }
+      ],
+      quote:"让好习惯容易发生，让坏习惯难以发生。",
+      footer:"原子习惯 × 说清楚"
+    }
+  },
+  {
+    id: 7, date: "Day 7", theme: "你越解释，别人越不信你",
+    lines: [
+      { type:"hook", text:"有没有遇到过：越解释越说不清楚，对方反而更怀疑你了？" },
+      { type:"pain", text:"因为解释是一种防御姿态，防御让对方觉得——你是不是心里有鬼才这么急着说清楚？" },
+      { type:"solution", text:"与其解释，不如举证。不说「我真的很努力」，说「我这三个月做了这三件事」。事实比态度更有力。" },
+      { type:"quote", text:"最有力的辩解，是根本不需要辩解。" }
+    ],
+    source: "影响力 · Robert Cialdini",
+    card: {
+      tag:"INFLUENCE", no:"NO.007", title:"越解释越没用", en:"PROOF BEATS EXPLANATION",
+      summary:"你越急着解释，对方越觉得有问题——解释本身就是防御信号",
+      mech:"「过度辩护效应」指出，主动解释越多，听者越容易产生怀疑。真正有说服力的不是态度，是证据。",
+      mechSrc:"影响力 · Robert Cialdini",
+      actions:[
+        { title:"找你常解释的事", desc:"你在解释还是在举证？" },
+        { title:"换成事实", desc:"把「我真的…」换成「我做了…」" },
+        { title:"说完就停", desc:"结论说完，等对方问，别主动补充" }
+      ],
+      quote:"最有力的辩解，是根本不需要辩解。",
+      footer:"影响力 × 说清楚"
+    }
+  },
+  {
+    id: 8, date: "Day 8", theme: "学得越多，不一定想得越清楚",
+    lines: [
+      { type:"hook", text:"书读得越多，有时候反而越不知道该怎么选——你有这种感觉吗？" },
+      { type:"pain", text:"信息本身不会自动变成判断力，大量输入没有消化，堆在脑子里只会变成噪音。" },
+      { type:"solution", text:"每读完一本书，强制输出一次：用一句话总结核心观点。输出倒逼输入，知识才能内化。" },
+      { type:"quote", text:"知识不经过输出，只是信息的搬运工。" }
+    ],
+    source: "费曼学习法 · Richard Feynman",
+    card: {
+      tag:"LEARNING", no:"NO.008", title:"输入不等于吸收", en:"INPUT IS NOT ABSORPTION",
+      summary:"你以为在学，其实在囤。知识不输出，永远不是你的",
+      mech:"费曼技巧的核心：如果你不能简单解释一件事，说明你还没真正理解。输出是检验理解的唯一标准。",
+      mechSrc:"费曼学习法 · Richard Feynman",
+      actions:[
+        { title:"读完就写", desc:"用一句话总结今天读的核心" },
+        { title:"讲给别人", desc:"找个人，用大白话解释你刚学的" },
+        { title:"做连接", desc:"这个新知识和我知道的什么有关？" }
+      ],
+      quote:"知识不经过输出，只是信息的搬运工。",
+      footer:"费曼学习法 × 说清楚"
+    }
+  }
+];
+
+var currentDay = 0;
+var progress = 0;
+var streak = 0;
+
+function show(id) {
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].classList.remove('active');
+  }
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function getDate() {
+  var now = new Date();
+  var month = now.getMonth() + 1;
+  var date = now.getDate();
+  var days = ['周日','周一','周二','周三','周四','周五','周六'];
+  return month + '/' + date + ' ' + days[now.getDay()];
+}
+
+function renderB() {
+  var day = days[currentDay];
+  document.getElementById('b-date').textContent = getDate();
+  document.getElementById('b-day').textContent = day.date;
+  document.getElementById('b-theme').textContent = day.theme;
+  
+  var html = '';
+  for (var i = 0; i < day.lines.length; i++) {
+    var line = day.lines[i];
+    var quoteClass = line.type === 'quote' ? ' quote' : '';
+    html += '<div class="line-item"><div class="line-bar ' + line.type + '"></div><div class="line-text' + quoteClass + '">' + line.text + '</div></div>';
+  }
+  document.getElementById('b-lines').innerHTML = html;
+  document.getElementById('b-source').textContent = '来源：' + day.source;
+  updateProgress();
+}
+
+function updateProgress() {
+  var dots = document.querySelectorAll('#b-progress .progress-dot');
+  for (var i = 0; i < dots.length; i++) {
+    if (i < progress) dots[i].classList.add('done');
+    else dots[i].classList.remove('done');
+  }
+  var btn = document.getElementById('b-btn');
+  if (progress >= 3) {
+    btn.textContent = '查看今日洞见 ->';
+    btn.classList.add('done');
+    btn.onclick = goToC;
+  } else {
+    btn.textContent = '我读完一遍';
+    btn.classList.remove('done');
+    btn.onclick = handleRead;
+  }
+}
+
+function handleRead() {
+  if (progress < 3) {
+    progress++;
+    updateProgress();
+  }
+}
+
+function renderC() {
+  var day = days[currentDay];
+  var c = day.card;
+  document.getElementById('c-tag').textContent = c.tag;
+  document.getElementById('c-no').textContent = c.no;
+  document.getElementById('c-title').textContent = c.title;
+  document.getElementById('c-en').textContent = c.en;
+  document.getElementById('c-summary').textContent = c.summary;
+  document.getElementById('c-mech').textContent = c.mech;
+  document.getElementById('c-mech-src').textContent = c.mechSrc;
+  
+  var html = '';
+  for (var i = 0; i < c.actions.length; i++) {
+    var a = c.actions[i];
+    html += '<div class="action-item"><span class="action-num">' + (i+1) + '.</span> <b>' + a.title + '</b> — ' + a.desc + '</div>';
+  }
+  document.getElementById('c-actions').innerHTML = html;
+  document.getElementById('c-quote').textContent = '"' + c.quote + '"';
+  document.getElementById('c-footer').textContent = c.footer;
+}
+
+function renderD() {
+  var day = days[currentDay];
+  document.getElementById('d-quote').textContent = '「' + day.card.quote + '」';
+  document.getElementById('d-source').textContent = '— ' + day.card.footer;
+  document.getElementById('d-streak').textContent = '连续第' + streak + '天';
+}
+
+function goToB() {
+  progress = 0;
+  renderB();
+  show('page-b');
+}
+
+function goToC() {
+  renderC();
+  show('page-c');
+}
+
+function goToD() {
+  streak++;
+  localStorage.setItem('ssq_streak', streak);
+  localStorage.setItem('ssq_day', currentDay);
+  renderD();
+  show('page-d');
+}
+
+function again() {
+  progress = 0;
+  renderB();
+  show('page-b');
+}
+
+function changeDay() {
+  var newDay;
+  do {
+    newDay = Math.floor(Math.random() * days.length);
+  } while (newDay === currentDay && days.length > 1);
+  currentDay = newDay;
+  progress = 0;
+  renderB();
+  show('page-b');
+}
+
+// 初始化
+var saved = localStorage.getItem('ssq_day');
+if (saved !== null) currentDay = parseInt(saved) % days.length;
+var savedStreak = localStorage.getItem('ssq_streak');
+if (savedStreak !== null) streak = parseInt(savedStreak);
+</script>
+
+</body>
+</html>
